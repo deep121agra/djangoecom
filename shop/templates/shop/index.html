@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>First page</title>
+
+    <!-- jQuery and Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <link rel="stylesheet" href="{% static 'shop/stype.css' %}" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="#">Navbar</a>
+              <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+              >
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#"
+                      >Home</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Features</a>
+                  </li>
+
+                  <li class="nav-item">
+                    <button
+                      id="cart"
+                      data-html="true"
+                      type="button"
+                      class="btn btn-secondary"
+                      data-bs-toggle="popover"
+                      data-bs-html="'true"
+                      data-bs-placement="bottom"
+                      data-bs-content="this is my cart"
+                    >
+                      Cart(0)
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link disabled" aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <div class="row">
+        {% for product in product_objects %}
+        <div class="col-md-3">
+          <div class="card">
+            <img src="{{ product.image }}" class="card-img-top" />
+            <div class="card-body">
+              <div id="nm{{ product.id }}" class="card-title">
+                {{ product.title }}
+              </div>
+              <div class="card-text">&#8377;{{product.price}}</div>
+              <a href="{{ product.id }}" class="btn btn-warning">View</a>
+              <button id="{{ product.id }}" class="btn atc btn-warning">
+                Add to cart
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="row">
+        <div class="col-md-3 offset-md-4">
+          <ul class="pagination">
+            {% if product_objects.has_previous %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ product_objects.previous_page_number }}"
+                >Previous</a
+              >
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+              <a class="page-link" href="?page={{ product_objects.number }}"
+                >Page {{ product_objects.number }}</a
+              >
+            </li>
+
+            {% if product_objects.has_next %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ product_objects.next_page_number }}"
+                >Next</a
+              >
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="text/javascript">
+    console.log("Script Loaded");
+    if (localStorage.getItem("cart") == null) {
+      // if the cart not have any value so we use it
+      var cart = {};
+    } else {
+      cart = JSON.parse(localStorage.getItem("cart"));
+    }
+    $(document).on("click", ".atc", function () {
+      console.log("the addd to cart button in clicked");
+      var item_id = this.id.toString();
+      /// this is used to refer a current object
+      console.log(item_id);
+      if (cart[item_id] != undefined) {
+        cart[item_id] = cart[item_id] + 1;
+      } else {
+        cart[item_id] = 1;
+      }
+      console.log(cart);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      document.getElementById("cart").innerHTML =
+        "Cart(" + Object.keys(cart).length + ")";
+      DisplayCart(cart);
+      // console.log();
+    });
+    // Reinitialize the popover after updating its content
+    function DisplayCart(cart) {
+      var cartString = "<h5>This is your cart</h5><ul>"; // Start with a header and an unordered list
+      var cartIndex = 1;
+
+      for (var x in cart) {
+        if (document.getElementById("nm" + x)) {
+          cartString +=
+            "<li>" +
+            cartIndex +
+            ". " +
+            document.getElementById("nm" + x).innerHTML +
+            " - Qty: " +
+            cart[x] +
+            "</li>";
+          cartIndex += 1;
+        }
+      }
+
+      cartString += "</ul>"; // Close the unordered list
+
+      // Add the checkout button after the list (without an id)
+      cartString +=
+        "<a href='/checkout'><button class='btn btn-warning' id='checkout'>Checkout</button></a>";
+
+      // Update the popover content
+      document
+        .getElementById("cart")
+        .setAttribute("data-bs-content", cartString);
+
+      // Reinitialize the popover to reflect updated content
+      const popoverTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="popover"]'
+      );
+      popoverTriggerList.forEach((popoverTriggerEl) => {
+        const popover = new bootstrap.Popover(popoverTriggerEl, {
+          html: true, // Enable HTML content in the popover
+        });
+      });
+    }
+  </script>
+</html>
