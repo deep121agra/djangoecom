@@ -137,9 +137,18 @@
       /// this is used to refer a current object
       console.log(item_id);
       if (cart[item_id] != undefined) {
-        cart[item_id] = cart[item_id] + 1;
+        // quantity = cart[item_id][0] + 1;
+        cart[item_id][0] += 1;
+        //cart[item_id][2] =
+        //  cart[item_id][2] +
+        //   parseFloat(document.getElementById("price" + item_id).innerHTML);
       } else {
-        cart[item_id] = 1;
+        quantity = 1;
+        //  price = parseFloat(
+        //   document.getElementById("price" + item_id).innerHTML
+        // );
+        name = document.getElementById("nm" + item_id).innerHTML;
+        cart[item_id] = [quantity, name];
       }
       console.log(cart);
       localStorage.setItem("cart", JSON.stringify(cart));
@@ -161,7 +170,7 @@
             ". " +
             document.getElementById("nm" + x).innerHTML +
             " - Qty: " +
-            cart[x] +
+            cart[x][0] +
             "</li>";
           cartIndex += 1;
         }
